@@ -1,0 +1,19 @@
+apiVersion: skaffold/v2beta4
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+      - ./infra/k8s-dev/*
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: adharshmk96/auth
+      context: auth-user
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.go"
+            dest: .

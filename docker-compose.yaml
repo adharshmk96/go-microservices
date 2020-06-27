@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  auth_server:
+    container_name: auth_server
+    image: adharshmk96/auth
+    build:
+      context: ./auth-user
+    restart: always
+    # environment: 
+    ports:
+      - "3000:3000"
+    

@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 
+	"github.com/adharshmk96/go-microservices/auth-fiber/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 )
 
@@ -32,6 +33,8 @@ func (user *User) Save() *errors.RestErr {
 		}
 		return errors.NewBadRequestError(fmt.Sprintf("user %d already exitsts", user.ID))
 	}
+	user.DateCreated = dateutils.GetNowString()
+
 	userDB[user.ID] = user
 	return nil
 }

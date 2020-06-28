@@ -7,11 +7,16 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - http:
+    - host: bookstore.dev
+      http:
         paths:
-          - path: /auth/?(.*)
+          - path: /gin/?(.*)
             backend:
-              serviceName: auth-srv
+              serviceName: auth-gin-srv
+              servicePort: 3001
+          - path: /fiber/?(.*)
+            backend:
+              serviceName: auth-fiber-srv
               servicePort: 3000
 ---
 apiVersion: v1
@@ -28,3 +33,163 @@ spec:
       protocol: TCP
       targetPort: 80
   type: ClusterIP
+
+
+# ##
+# # Service Account
+# ##
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: traefik-ingress
+#   namespace: kube-system
+# ---
+# ##
+# # Cluster Role
+# ##
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRole
+# metadata:
+#   name: traefik-ingress
+# rules:
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - services
+#       - endpoints
+#       - secrets
+#     verbs:
+#       - get
+#       - list
+#       - watch
+#   - apiGroups:
+#       - extensions
+#     resources:
+#       - ingresses
+#     verbs:
+#       - get
+#       - list
+#       - watch
+# ---
+# ##
+# # Cluster Role Binding
+# ##
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: traefik-ingress
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: traefik-ingress
+# subjects:
+#   - kind: ServiceAccount
+#     name: traefik-ingress
+#     namespace: kube-system
+# ---
+# ##
+# # Deployment
+# ##
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: traefik-ingress
+#   namespace: kube-system
+#   labels:
+#     k8s-app: traefik-ingress-lb
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       k8s-app: traefik-ingress-lb
+#   template:
+#     metadata:
+#       labels:
+#         k8s-app: traefik-ingress-lb
+#         name: traefik-ingress-lb
+#     spec:
+#       serviceAccountName: traefik-ingress
+#       terminationGracePeriodSeconds: 60
+#       containers:
+#         - image: traefik:1.7
+#           name: traefik-ingress-lb
+#           ports:
+#             - name: app-services
+#               containerPort: 80
+#             - name: dashboard
+#               containerPort: 8080
+#           args:
+#             - --api
+#             - --kubernetes
+#             - --logLevel=INFO
+# ---
+# ##
+# # Service
+# ##
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: traefik-ingress-service
+#   namespace: kube-system
+# spec:
+#   selector:
+#     k8s-app: traefik-ingress-lb
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       name: app-services
+#     - protocol: TCP
+#       port: 8080
+#       name: dashboard
+# ---  
+# ##
+# # Web UI
+# ##
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: traefik-web-ui
+#   namespace: kube-system
+# spec:
+#   selector:
+#     k8s-app: traefik-ingress-lb
+#   ports:
+#   - name: web
+#     port: 80
+#     targetPort: 8080
+# ---
+# ## 
+# # Traefik Ingress Config
+# ##
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: traefik-web-ui
+#   namespace: kube-system
+# spec:
+#   rules:
+#   - host: traefik-ui.minikube
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: traefik-web-ui
+#           servicePort: web
+# ---          
+
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: traefik-ingress
+#   annotations:
+#     kubernetes.io/ingress.class: traefik
+
+# spec:
+#   rules:
+#     - host: hello.k8s
+#       http:
+#         paths:
+#           - path: /auth/
+#             backend:
+#               serviceName: auth-srv
+#               servicePort: http

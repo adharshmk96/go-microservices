@@ -9,8 +9,16 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-    - image: adharshmk96/auth
-      context: auth-user
+    - image: adharshmk96/fiber_auth
+      context: auth-fiber
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.go"
+            dest: .
+    - image: adharshmk96/gin_auth
+      context: auth-gin
       docker:
         dockerfile: Dockerfile
       sync:

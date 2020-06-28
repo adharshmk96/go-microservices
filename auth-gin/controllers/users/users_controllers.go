@@ -5,6 +5,7 @@ import (
 
 	"github.com/adharshmk96/go-microservices/auth-gin/domain/users"
 	"github.com/adharshmk96/go-microservices/auth-gin/services"
+	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,13 +29,16 @@ func CreateUser(c *gin.Context) {
 	// 	return
 	// }
 	if err := c.ShouldBindJSON(&user); err != nil {
-		// TODO: Handle JSON Error
+		// Handle JSON Error
+		restErr := errors.NewBadRequestError("invalid json body")
+		c.JSON(http.StatusBadRequest, restErr)
 		return
 	}
 
 	result, validErr := services.CreateUser(user)
 	if validErr != nil {
 		//TODO: Handle user creation err
+		c.JSON(validErr.Status, validErr)
 		return
 	}
 

@@ -11,7 +11,6 @@ func mapUrls() {
 	router.GET("/gin/ping", ping.Ping)
 
 	// User Routes
-	router.GET("/gin/users/search", users.FindUser)
 	router.GET("/gin/user/:user_id", users.GetUser)
 	router.POST("/gin/users", users.CreateUser)
 }

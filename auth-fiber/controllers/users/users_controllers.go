@@ -1,10 +1,11 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/adharshmk96/go-microservices/auth-fiber/services"
+	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 
 	"github.com/adharshmk96/go-microservices/auth-fiber/domain/users"
 	"github.com/gofiber/fiber"
@@ -12,8 +13,23 @@ import (
 
 // GetUser Returns current user
 func GetUser(c *fiber.Ctx) {
-	c.Status(http.StatusNotImplemented)
-	c.SendString("Implement Me")
+	userID, userErr := strconv.ParseInt(c.Params("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("invalid User id")
+		c.Status(err.Status)
+		c.JSON(err)
+		return
+	}
+
+	user, getErr := services.GetUser(userID)
+	if getErr != nil {
+		c.Send(getErr.Status)
+		c.JSON(getErr)
+		return
+	}
+
+	c.Status(http.StatusOK)
+	c.JSON(user)
 }
 
 // CreateUser used for Registration
@@ -24,7 +40,9 @@ func CreateUser(c *fiber.Ctx) {
 
 	if err := c.BodyParser(user); err != nil {
 		// TODO: Handle Error
-		fmt.Println("Error", err.Error())
+		jsonError := errors.NewBadRequestError("Json Format Error !")
+		c.Status(jsonError.Status)
+		c.JSON(jsonError)
 		return
 	}
 
@@ -32,16 +50,11 @@ func CreateUser(c *fiber.Ctx) {
 
 	if validErr != nil {
 		// TODO: Handle user createion error
-		fmt.Println("Error", validErr.Error())
+		c.Status(validErr.Status)
+		c.JSON(validErr)
 		return
 	}
 
 	c.Status(http.StatusCreated)
 	c.JSON(result)
-}
-
-// FindUser used for Finding user by Id
-func FindUser(c *fiber.Ctx) {
-	c.Status(http.StatusNotImplemented)
-	c.SendString("Implement Me")
 }

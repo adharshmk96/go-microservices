@@ -2,6 +2,7 @@ package users
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/adharshmk96/go-microservices/auth-gin/domain/users"
 	"github.com/adharshmk96/go-microservices/auth-gin/services"
@@ -47,10 +48,17 @@ func CreateUser(c *gin.Context) {
 
 // GetUser returns the user info
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "Implement Me")
-}
+	userID, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("invalid user id")
+		c.JSON(err.Status, err)
+		return
+	}
 
-// FindUser is sued to search the user Info
-func FindUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "Implement Me")
+	user, getErr := services.GetUser(userID)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+		return
+	}
+	c.JSON(http.StatusOK, user)
 }

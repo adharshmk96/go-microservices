@@ -11,7 +11,6 @@ func mapUrls() {
 
 	// User Route
 	router.Get("fiber/user/:user_id", users.GetUser)
-	router.Get("fiber/users/search", users.FindUser)
 	router.Post("fiber/users", users.CreateUser)
 
 }

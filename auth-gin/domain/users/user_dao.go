@@ -5,6 +5,7 @@ package users
 import (
 	"fmt"
 
+	"github.com/adharshmk96/go-microservices/auth-gin/datasources/mysql/userdatabase"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 )
@@ -15,6 +16,10 @@ var (
 
 // Get gets user info
 func (user *User) Get() *errors.RestErr {
+	if err := userdatabase.Client.Ping(); err != nil {
+		panic(err)
+	}
+
 	result := usersDB[user.ID]
 	if result == nil {
 		return errors.NewBadRequestError(fmt.Sprintf("user %d not found", user.ID))

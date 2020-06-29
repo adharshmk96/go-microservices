@@ -15,22 +15,25 @@ spec:
       containers:
         - name: auth-fiber
           image: adharshmk96/fiber_auth
+          envFrom:
+            - configMapRef:
+                name: mysql-server-fiber-cred
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name:  auth-fiber-srv
+  name: auth-fiber-srv
 spec:
-  type:  ClusterIP
+  type: ClusterIP
   selector:
     app: auth-fiber
   ports:
-    - name:  auth-fiber
+    - name: auth-fiber
       protocol: TCP
-      port:  3000
-      targetPort:  3000          
----   
-### GIN auth app   
+      port: 3000
+      targetPort: 3000
+---
+### GIN auth app
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,17 +51,42 @@ spec:
       containers:
         - name: auth-gin
           image: adharshmk96/gin_auth
+          envFrom:
+            - configMapRef:
+                name: mysql-server-gin-cred
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name:  auth-gin-srv
+  name: auth-gin-srv
 spec:
-  type:  ClusterIP
+  type: ClusterIP
   selector:
     app: auth-gin
   ports:
-    - name:  auth-gin
+    - name: auth-gin
       protocol: TCP
-      port:  3001
-      targetPort:  3001
+      port: 3001
+      targetPort: 3001
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: mysql-server-gin-cred
+data:
+  MYSQL_USERS_HOST: mysql-server-srv:3306
+  MYSQL_USERS_PASSWORD: password
+  MYSQL_USERS_SCHEMA: gin_user_db
+  MYSQL_USERS_USERNAME: root
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: mysql-server-fiber-cred
+data:
+  MYSQL_USERS_HOST: mysql-server-srv:3306
+  MYSQL_USERS_PASSWORD: password
+  MYSQL_USERS_SCHEMA: fiber_user_db
+  MYSQL_USERS_USERNAME: root

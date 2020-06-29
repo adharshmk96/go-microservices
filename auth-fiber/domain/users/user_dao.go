@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 
+	"github.com/adharshmk96/go-microservices/auth-fiber/datasources/mysql/userdatabase"
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 )
@@ -13,6 +14,10 @@ var (
 
 // Get user info
 func (user *User) Get() *errors.RestErr {
+	if err := userdatabase.Client.DB().Ping(); err != nil {
+		panic(err)
+	}
+
 	result := userDB[user.ID]
 	if result == nil {
 		return errors.NotFoundError(fmt.Sprintf("user %d not found", user.ID))

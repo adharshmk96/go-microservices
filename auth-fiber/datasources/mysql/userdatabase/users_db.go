@@ -47,7 +47,6 @@ func init() {
 	log.Println("Connecting to MySql DB")
 	var err error
 	Client, err = gorm.Open("mysql", dataSourceName)
-	defer Client.Close()
 
 	if err != nil {
 		panic(err)

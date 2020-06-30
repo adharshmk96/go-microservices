@@ -1,4 +1,4 @@
-package userdatabase
+package userdata
 
 import (
 	"fmt"
@@ -18,14 +18,6 @@ const (
 	mysqlUserusername = "MYSQL_USERS_USERNAME"
 )
 
-// User describes a User
-type User struct {
-	gorm.Model
-	FirstName string `json:"first_name"	form:"first_name"		query:"first_name"`
-	LastName  string `json:"last_name" 	form:"last_name"		query:"last_name"`
-	Email     string `json:"email" 		form:"email"		 	query:"email"			gorm:"type:varchar(100);unique_index"`
-}
-
 // Client is the gorm db connection
 var (
 	Client *gorm.DB
@@ -37,7 +29,7 @@ var (
 )
 
 func init() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
 		username,
 		password,
 		host,
@@ -56,7 +48,7 @@ func init() {
 		panic(err)
 	}
 
-	log.Println("MySql gin_user_db Database Connected")
+	log.Printf("MySql %s Database Connected", schema)
 
 	Client.AutoMigrate(&User{})
 	fmt.Println("Database Migrated")

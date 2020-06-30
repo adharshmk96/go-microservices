@@ -4,16 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/adharshmk96/go-microservices/auth-fiber/models/mysql/userdata"
 	"github.com/adharshmk96/go-microservices/auth-fiber/services"
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 
-	"github.com/adharshmk96/go-microservices/auth-fiber/domain/users"
 	"github.com/gofiber/fiber"
 )
 
 // GetUser Returns current user
 func GetUser(c *fiber.Ctx) {
-	userID, userErr := strconv.ParseInt(c.Params("user_id"), 10, 64)
+	userID, userErr := strconv.ParseUint(c.Params("user_id"), 10, 64)
 	if userErr != nil {
 		err := errors.NewBadRequestError("invalid User id")
 		c.Status(err.Status)
@@ -36,7 +36,7 @@ func GetUser(c *fiber.Ctx) {
 func CreateUser(c *fiber.Ctx) {
 
 	// Define the Structure
-	user := new(users.User)
+	user := new(userdata.User)
 
 	if err := c.BodyParser(user); err != nil {
 		// TODO: Handle Error

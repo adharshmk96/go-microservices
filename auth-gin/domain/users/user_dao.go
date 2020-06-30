@@ -4,10 +4,16 @@ package users
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/adharshmk96/go-microservices/auth-gin/datasources/mysql/userdatabase"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
+)
+
+const (
+	indexUniqueEmail = "email_UNIQUE"
+	queryInsertUser  = "INSERT INTO users(first_name, last_name, email, date_created) VALUES(?,?,?,?)"
 )
 
 var (
@@ -34,15 +40,33 @@ func (user *User) Get() *errors.RestErr {
 
 // Save Saves in db
 func (user *User) Save() *errors.RestErr {
-	if current := usersDB[user.ID]; current != nil {
-		if current.Email == user.Email {
-			return errors.NewBadRequestError(fmt.Sprintf("email %s already exitsts", user.Email))
-		}
-		return errors.NewBadRequestError(fmt.Sprintf("user %d already exitsts", user.ID))
+	stmt, err := userdatabase.Client.Prepare(queryInsertUser)
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
 	}
+	defer stmt.Close()
 
 	user.DateCreated = dateutils.GetNowString()
 
-	usersDB[user.ID] = user
+	insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
+	if err != nil {
+		if strings.Contains(err.Error(), "email_UNIQUE") {
+			return errors.NewBadRequestError("Email already Exists")
+		}
+
+		return errors.NewInternalServerError(
+			fmt.Sprintf("Erro adding user %s", err.Error()),
+		)
+	}
+
+	userID, err := insertResult.LastInsertId()
+	if err != nil {
+		return errors.NewInternalServerError(
+			fmt.Sprintf("Error Trying to save user %s", err.Error()),
+		)
+	}
+
+	user.ID = userID
 	return nil
+
 }

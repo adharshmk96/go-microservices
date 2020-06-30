@@ -10,19 +10,28 @@ type RestErr struct {
 }
 
 // NewBadRequestError to return Bad request Error 400
-func NewBadRequestError(messsage string) *RestErr {
+func NewBadRequestError(message string) *RestErr {
 	return &RestErr{
-		Message: messsage,
+		Message: message,
 		Status:  http.StatusBadRequest,
 		Error:   "bad_request",
 	}
 }
 
 // NotFoundError to return Bad request Error 404
-func NotFoundError(messsage string) *RestErr {
+func NotFoundError(message string) *RestErr {
 	return &RestErr{
-		Message: messsage,
+		Message: message,
 		Status:  http.StatusNotFound,
 		Error:   "bad_request",
+	}
+}
+
+// NewInternalServerError Returns 500
+func NewInternalServerError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Status:  http.StatusInternalServerError,
+		Error:   "internal_server_error",
 	}
 }

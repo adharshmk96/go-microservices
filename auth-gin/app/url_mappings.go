@@ -13,4 +13,6 @@ func mapUrls() {
 	// User Routes
 	router.GET("/gin/user/:user_id", users.GetUser)
 	router.POST("/gin/users", users.CreateUser)
+	router.PUT("/gin/user/:user_id", users.UpdateUser)
+	router.PATCH("/gin/user/:user_id", users.UpdateUser)
 }

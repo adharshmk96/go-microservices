@@ -23,3 +23,10 @@ func (user *User) Get() *errors.RestErr {
 	}
 	return nil
 }
+
+// Update is used to Update a User
+func (user *User) Update() *errors.RestErr {
+	// Make an error when db doesnt find the email to check uniqueness
+	Client.Save(&user)
+	return nil
+}

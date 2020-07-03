@@ -58,3 +58,39 @@ func CreateUser(c *fiber.Ctx) {
 	c.Status(http.StatusCreated)
 	c.JSON(result)
 }
+
+// UpdateUser updates a user record
+func UpdateUser(c *fiber.Ctx) {
+	userID, userErr := strconv.ParseUint(c.Params("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("invalid User id")
+		c.Status(err.Status)
+		c.JSON(err)
+		return
+	}
+
+	user := new(userdata.User)
+
+	if err := c.BodyParser(user); err != nil {
+		jsonError := errors.NewBadRequestError("Json Format Error")
+		c.Status(jsonError.Status)
+		c.JSON(jsonError)
+		return
+	}
+
+	user.ID = userID
+
+	isPartial := c.Method() == http.MethodPatch
+
+	result, validErr := services.UpdateUser(isPartial, *user)
+
+	if validErr != nil {
+		// TODO: Handle user createion error
+		c.Status(validErr.Status)
+		c.JSON(validErr)
+		return
+	}
+	// user
+	c.Status(http.StatusCreated)
+	c.JSON(result)
+}

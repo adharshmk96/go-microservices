@@ -30,3 +30,10 @@ func (user *User) Update() *errors.RestErr {
 	Client.Save(&user)
 	return nil
 }
+
+// Delete is used to Delete a User
+func (user *User) Delete() *errors.RestErr {
+	// Make an error when db doesnt find the email to check uniqueness
+	Client.Delete(&user)
+	return nil
+}

@@ -11,14 +11,23 @@ import (
 	"github.com/gofiber/fiber"
 )
 
+// getUserID extracts andr eturn user id
+func getUserID(userID string) (uint64, *errors.RestErr) {
+	uid, userErr := strconv.ParseUint(userID, 10, 64)
+	if userErr != nil {
+		return 0, errors.NewBadRequestError("invalid User id")
+	}
+	return uid, nil
+}
+
 // GetUser Returns current user
 func GetUser(c *fiber.Ctx) {
-	userID, userErr := strconv.ParseUint(c.Params("user_id"), 10, 64)
+	userID, userErr := getUserID(c.Params("user_id"))
 	if userErr != nil {
-		err := errors.NewBadRequestError("invalid User id")
-		c.Status(err.Status)
-		c.JSON(err)
-		return
+		c.Status(userErr.Status)
+		panic("Invalid User ID")
+		// c.JSON(userErr)
+		// return
 	}
 
 	user, getErr := services.GetUser(userID)
@@ -47,7 +56,6 @@ func CreateUser(c *fiber.Ctx) {
 	}
 
 	result, validErr := services.CreateUser(*user)
-
 	if validErr != nil {
 		// TODO: Handle user createion error
 		c.Status(validErr.Status)
@@ -61,11 +69,10 @@ func CreateUser(c *fiber.Ctx) {
 
 // UpdateUser updates a user record
 func UpdateUser(c *fiber.Ctx) {
-	userID, userErr := strconv.ParseUint(c.Params("user_id"), 10, 64)
+	userID, userErr := getUserID(c.Params("user_id"))
 	if userErr != nil {
-		err := errors.NewBadRequestError("invalid User id")
-		c.Status(err.Status)
-		c.JSON(err)
+		c.Status(userErr.Status)
+		c.JSON(userErr)
 		return
 	}
 
@@ -83,7 +90,6 @@ func UpdateUser(c *fiber.Ctx) {
 	isPartial := c.Method() == http.MethodPatch
 
 	result, validErr := services.UpdateUser(isPartial, *user)
-
 	if validErr != nil {
 		// TODO: Handle user createion error
 		c.Status(validErr.Status)
@@ -93,4 +99,23 @@ func UpdateUser(c *fiber.Ctx) {
 	// user
 	c.Status(http.StatusCreated)
 	c.JSON(result)
+}
+
+// DeleteUser deletes a user record
+func DeleteUser(c *fiber.Ctx) {
+	userID, userErr := getUserID(c.Params("user_id"))
+	if userErr != nil {
+		c.Status(userErr.Status)
+		c.JSON(userErr)
+		return
+	}
+
+	if err := services.DeleteUser(userID); err != nil {
+		c.Status(userErr.Status)
+		c.JSON(userErr)
+		return
+	}
+
+	c.Status(http.StatusOK)
+	c.JSON(map[string]string{"Status": "success"})
 }

@@ -11,8 +11,9 @@ func mapUrls() {
 	router.GET("/gin/ping", ping.Ping)
 
 	// User Routes
-	router.GET("/gin/user/:user_id", users.GetUser)
-	router.POST("/gin/users", users.CreateUser)
-	router.PUT("/gin/user/:user_id", users.UpdateUser)
-	router.PATCH("/gin/user/:user_id", users.UpdateUser)
+	router.GET("/gin/user/:user_id", users.Get)
+	router.POST("/gin/users", users.Create)
+	router.PUT("/gin/user/:user_id", users.Update)
+	router.PATCH("/gin/user/:user_id", users.Update)
+	router.DELETE("/gin/user/:user_id", users.Delete)
 }

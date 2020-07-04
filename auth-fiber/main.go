@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-	// Default Logger
-	// app.Use(middleware.Logger())
 	application.StartApplication()
 
 	defer userdata.Client.Close()

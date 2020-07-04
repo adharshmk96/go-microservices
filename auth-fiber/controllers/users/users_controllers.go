@@ -119,3 +119,17 @@ func DeleteUser(c *fiber.Ctx) {
 	c.Status(http.StatusOK)
 	c.JSON(map[string]string{"Status": "success"})
 }
+
+// Search returns user
+func Search(c *fiber.Ctx) {
+	status := c.Query("status")
+
+	users, err := services.FindUser(status)
+	if err != nil {
+		c.Status(err.Status)
+		c.JSON(err)
+		return
+	}
+	c.Status(http.StatusOK)
+	c.JSON(users)
+}

@@ -69,3 +69,9 @@ func DeleteUser(userID uint64) *errors.RestErr {
 	}
 	return user.Delete()
 }
+
+// FindUser finds user by status
+func FindUser(status string) ([]userdata.User, *errors.RestErr) {
+	user := &userdata.User{}
+	return user.Find(status)
+}

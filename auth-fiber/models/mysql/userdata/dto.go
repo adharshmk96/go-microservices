@@ -16,12 +16,18 @@ type User struct {
 	Email     string `gorm:"type:varchar(100);unique_index"`
 	FirstName string `json:"first_name"	form:"first_name"		query:"first_name"`
 	LastName  string `json:"last_name" 	form:"last_name"		query:"last_name"`
+	Status    string `json:"status" 	form:"status"		query:"status"`
+	Password  string `json:"password" 	form:"password"		query:"password"`
 }
 
 // Validate Validates the data
 func (user *User) Validate() *errors.RestErr {
 	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
 	if user.Email == "" {
+		return errors.NewBadRequestError("Invalid Email")
+	}
+	user.Password = strings.TrimSpace(strings.ToLower(user.Password))
+	if user.Password == "" {
 		return errors.NewBadRequestError("Invalid Email")
 	}
 	return nil

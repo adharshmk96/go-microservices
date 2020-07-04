@@ -1,6 +1,8 @@
 package userdata
 
 import (
+	"fmt"
+
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 )
 
@@ -13,7 +15,7 @@ func (user *User) Create() *errors.RestErr {
 		return nil
 	}
 
-	return errors.NewBadRequestError("Email Already Exists")
+	panic("Email already Exists")
 }
 
 // Get is used to get a user
@@ -36,4 +38,13 @@ func (user *User) Delete() *errors.RestErr {
 	// Make an error when db doesnt find the email to check uniqueness
 	Client.Delete(&user)
 	return nil
+}
+
+// Find User
+func (user *User) Find(status string) ([]User, *errors.RestErr) {
+	// Select from db
+	var users []User
+	Client.Where(&user).Find(&users)
+	fmt.Println(users)
+	return users, nil
 }

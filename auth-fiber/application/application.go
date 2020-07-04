@@ -15,8 +15,7 @@ func StartApplication() {
 	app.Use(middleware.Logger())
 	app.Use(middleware.Recover())
 
-	// loadSettings()
+	userRoutes(app)
 
-	mapUrls()
 	app.Listen(3000)
 }

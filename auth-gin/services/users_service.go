@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/adharshmk96/go-microservices/auth-gin/domain/users"
+	"github.com/adharshmk96/go-microservices/auth-gin/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 )
 
@@ -10,6 +11,9 @@ func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
+
+	user.Status = users.statusActive
+	user.DateCreated = dateutils.GetDbString()
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
@@ -68,4 +72,10 @@ func DeleteUser(userID int64) *errors.RestErr {
 	}
 	user := &users.User{ID: userID}
 	return user.Delete()
+}
+
+// FindUser  finds by status
+func FindUser(status string) ([]users.User, *errors.RestErr) {
+	user := &users.User{}
+	return user.Find(status)
 }

@@ -1,0 +1,57 @@
+### GIN oauth app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth-gin-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth-gin
+  template:
+    metadata:
+      labels:
+        app: oauth-gin
+    spec:
+      containers:
+        - name: oauth-gin
+          image: adharshmk96/gin_oauth
+          envFrom:
+            - configMapRef:
+                name: mysql-server-gin-cred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth-gin-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: oauth-gin
+  ports:
+    - name: oauth-gin
+      protocol: TCP
+      port: 3001
+      targetPort: 3001
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cassandra-server-gin-cred
+data:
+  MYSQL_USERS_HOST: mysql-server-srv:3306
+  MYSQL_USERS_PASSWORD: password
+  MYSQL_USERS_SCHEMA: gin_user_db
+  MYSQL_USERS_USERNAME: root
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cassandra-server-fiber-cred
+data:
+  MYSQL_USERS_HOST: mysql-server-srv:3306
+  MYSQL_USERS_PASSWORD: password
+  MYSQL_USERS_SCHEMA: fiber_user_db
+  MYSQL_USERS_USERNAME: root

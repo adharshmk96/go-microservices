@@ -1,38 +1,38 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: auth-fiber-depl
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: auth-fiber
-  template:
-    metadata:
-      labels:
-        app: auth-fiber
-    spec:
-      containers:
-        - name: auth-fiber
-          image: adharshmk96/fiber_auth
-          envFrom:
-            - configMapRef:
-                name: mysql-server-fiber-cred
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: auth-fiber-srv
-spec:
-  type: ClusterIP
-  selector:
-    app: auth-fiber
-  ports:
-    - name: auth-fiber
-      protocol: TCP
-      port: 3000
-      targetPort: 3000
----
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: auth-fiber-depl
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: auth-fiber
+#   template:
+#     metadata:
+#       labels:
+#         app: auth-fiber
+#     spec:
+#       containers:
+#         - name: auth-fiber
+#           image: adharshmk96/fiber_auth
+#           envFrom:
+#             - configMapRef:
+#                 name: mysql-server-fiber-cred
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: auth-fiber-srv
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: auth-fiber
+#   ports:
+#     - name: auth-fiber
+#       protocol: TCP
+#       port: 3000
+#       targetPort: 3000
+# ---
 ### GIN auth app
 apiVersion: apps/v1
 kind: Deployment

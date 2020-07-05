@@ -14,10 +14,14 @@ spec:
             backend:
               serviceName: auth-gin-srv
               servicePort: 3001
-          - path: /fiber/?(.*)
+          - path: /gin/oauth/?(.*)
             backend:
-              serviceName: auth-fiber-srv
+              serviceName: oauth-gin-srv
               servicePort: 3000
+          # - path: /fiber/?(.*)
+          #   backend:
+          #     serviceName: auth-fiber-srv
+          #     servicePort: 3000
 ---
 apiVersion: v1
 kind: Service

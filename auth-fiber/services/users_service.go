@@ -5,8 +5,27 @@ import (
 	"github.com/adharshmk96/go-microservices/auth-fiber/utils/errors"
 )
 
+type userServices struct{}
+
+// userServicesInterface
+type userServicesInterface interface {
+	CreateUser(user userdata.User) (*userdata.User, *errors.RestErr)
+	GetUser(userID uint64) (*userdata.User, *errors.RestErr)
+	UpdateUser(isPartial bool, user userdata.User) (*userdata.User, *errors.RestErr)
+	DeleteUser(userID uint64) *errors.RestErr
+	FindUser(status string) ([]userdata.User, *errors.RestErr)
+}
+
+// usersService structure
+// type usersService struct{}
+
+var (
+	// UserServices interface
+	UserServices userServicesInterface = &userServices{}
+)
+
 // CreateUser returns validation errors
-func CreateUser(user userdata.User) (*userdata.User, *errors.RestErr) {
+func (s *userServices) CreateUser(user userdata.User) (*userdata.User, *errors.RestErr) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -17,7 +36,7 @@ func CreateUser(user userdata.User) (*userdata.User, *errors.RestErr) {
 }
 
 // GetUser service returls user details
-func GetUser(userID uint64) (*userdata.User, *errors.RestErr) {
+func (s *userServices) GetUser(userID uint64) (*userdata.User, *errors.RestErr) {
 	result := &userdata.User{ID: userID}
 	if err := result.Get(); err != nil {
 		return nil, err
@@ -26,10 +45,10 @@ func GetUser(userID uint64) (*userdata.User, *errors.RestErr) {
 }
 
 // UpdateUser service updates user details
-func UpdateUser(isPartial bool, user userdata.User) (*userdata.User, *errors.RestErr) {
+func (s *userServices) UpdateUser(isPartial bool, user userdata.User) (*userdata.User, *errors.RestErr) {
 
-	current, err := GetUser(user.ID)
-	if err != nil {
+	current := &userdata.User{ID: user.ID}
+	if err := current.Get(); err != nil {
 		return nil, err
 	}
 
@@ -62,16 +81,16 @@ func UpdateUser(isPartial bool, user userdata.User) (*userdata.User, *errors.Res
 }
 
 // DeleteUser Deletes a user
-func DeleteUser(userID uint64) *errors.RestErr {
-	user, err := GetUser(userID)
-	if err != nil {
+func (s *userServices) DeleteUser(userID uint64) *errors.RestErr {
+	user := &userdata.User{ID: userID}
+	if err := user.Get(); err != nil {
 		return err
 	}
 	return user.Delete()
 }
 
 // FindUser finds user by status
-func FindUser(status string) ([]userdata.User, *errors.RestErr) {
+func (s *userServices) FindUser(status string) ([]userdata.User, *errors.RestErr) {
 	user := &userdata.User{}
 	return user.Find(status)
 }

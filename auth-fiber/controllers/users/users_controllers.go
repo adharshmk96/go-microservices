@@ -30,7 +30,7 @@ func GetUser(c *fiber.Ctx) {
 		// return
 	}
 
-	user, getErr := services.GetUser(userID)
+	user, getErr := services.UserServices.GetUser(userID)
 	if getErr != nil {
 		c.Send(getErr.Status)
 		c.JSON(getErr)
@@ -55,7 +55,7 @@ func CreateUser(c *fiber.Ctx) {
 		return
 	}
 
-	result, validErr := services.CreateUser(*user)
+	result, validErr := services.UserServices.CreateUser(*user)
 	if validErr != nil {
 		// TODO: Handle user createion error
 		c.Status(validErr.Status)
@@ -89,7 +89,7 @@ func UpdateUser(c *fiber.Ctx) {
 
 	isPartial := c.Method() == http.MethodPatch
 
-	result, validErr := services.UpdateUser(isPartial, *user)
+	result, validErr := services.UserServices.UpdateUser(isPartial, *user)
 	if validErr != nil {
 		// TODO: Handle user createion error
 		c.Status(validErr.Status)
@@ -110,7 +110,7 @@ func DeleteUser(c *fiber.Ctx) {
 		return
 	}
 
-	if err := services.DeleteUser(userID); err != nil {
+	if err := services.UserServices.DeleteUser(userID); err != nil {
 		c.Status(userErr.Status)
 		c.JSON(userErr)
 		return
@@ -124,7 +124,7 @@ func DeleteUser(c *fiber.Ctx) {
 func Search(c *fiber.Ctx) {
 	status := c.Query("status")
 
-	users, err := services.FindUser(status)
+	users, err := services.UserServices.FindUser(status)
 	if err != nil {
 		c.Status(err.Status)
 		c.JSON(err)

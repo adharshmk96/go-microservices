@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/adharshmk96/go-microservices/auth-gin/datasources/mysql/userdatabase"
+	"github.com/adharshmk96/go-microservices/auth-gin/logger"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/mysqlutils"
@@ -30,7 +31,8 @@ var (
 func (user *User) Get() *errors.RestErr {
 	stmt, err := userdatabase.Client.Prepare(queryGetUser)
 	if err != nil {
-		return errors.NewInternalServerError(err.Error())
+		logger.Error("Error getting user", err)
+		return errors.NewInternalServerError("Database Error")
 	}
 	defer stmt.Close()
 
@@ -46,6 +48,7 @@ func (user *User) Get() *errors.RestErr {
 func (user *User) Save() *errors.RestErr {
 	stmt, err := userdatabase.Client.Prepare(queryInsertUser)
 	if err != nil {
+		logger.Error("Error getting user", err)
 		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()

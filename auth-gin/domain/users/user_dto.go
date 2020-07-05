@@ -8,9 +8,9 @@ import (
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 )
 
-// statusActive
 const (
-	statusActive = "active"
+	// StatusActive sends active sting
+	StatusActive = "active"
 )
 
 // User is the core structure of the data this module handles

@@ -45,14 +45,14 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	result, validErr := services.CreateUser(user)
+	result, validErr := services.UsersService.CreateUser(user)
 	if validErr != nil {
 		//TODO: Handle user creation err
 		c.JSON(validErr.Status, validErr)
 		return
 	}
 
-	c.JSON(http.StatusCreated, result)
+	c.JSON(http.StatusCreated, result.Marshall(c.GetHeader("X-Public") == "true"))
 }
 
 // Get returns the user info
@@ -64,12 +64,12 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	user, getErr := services.GetUser(userID)
+	user, getErr := services.UsersService.GetUser(userID)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 		return
 	}
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, user.Marshall(c.GetHeader("X-Public") == "true"))
 }
 
 // Update updates the user given the id
@@ -92,13 +92,13 @@ func Update(c *gin.Context) {
 	isPartial := c.Request.Method == http.MethodPatch
 
 	// userID, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
-	result, validErr := services.UpdateUser(isPartial, user)
+	result, validErr := services.UsersService.UpdateUser(isPartial, user)
 	if validErr != nil {
 		c.JSON(validErr.Status, validErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, result.Marshall(c.GetHeader("X-Public") == "true"))
 
 }
 
@@ -110,7 +110,7 @@ func Delete(c *gin.Context) {
 		return
 	}
 
-	if err := services.DeleteUser(userID); err != nil {
+	if err := services.UsersService.DeleteUser(userID); err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
@@ -122,10 +122,13 @@ func Delete(c *gin.Context) {
 func Search(c *gin.Context) {
 	status := c.Query("status")
 
-	users, err := services.FindUser(status)
+	users, err := services.UsersService.FindUser(status)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
-	c.JSON(http.StatusOK, users)
+
+	result := users.Marshall(c.GetHeader("X-Public") == "true")
+
+	c.JSON(http.StatusOK, result)
 }

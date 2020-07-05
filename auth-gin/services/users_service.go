@@ -2,18 +2,36 @@ package services
 
 import (
 	"github.com/adharshmk96/go-microservices/auth-gin/domain/users"
+	cryptoutils "github.com/adharshmk96/go-microservices/auth-gin/utils/cryptoUtils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/dateutils"
 	"github.com/adharshmk96/go-microservices/auth-gin/utils/errors"
 )
 
+type usersService struct{}
+
+var (
+	// UsersService interface
+	UsersService userServiceInterface = &usersService{}
+)
+
+// userServiceInterface to access all functions
+type userServiceInterface interface {
+	CreateUser(users.User) (*users.User, *errors.RestErr)
+	GetUser(int64) (*users.User, *errors.RestErr)
+	UpdateUser(bool, users.User) (*users.User, *errors.RestErr)
+	DeleteUser(int64) *errors.RestErr
+	FindUser(string) (users.Users, *errors.RestErr)
+}
+
 // CreateUser performs the business logic validation
-func CreateUser(user users.User) (*users.User, *errors.RestErr) {
+func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
 
-	user.Status = users.statusActive
+	user.Status = users.StatusActive
 	user.DateCreated = dateutils.GetDbString()
+	user.Password = cryptoutils.GetMd5(user.Password)
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
@@ -23,7 +41,7 @@ func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 }
 
 // GetUser Used to retrieve a user
-func GetUser(userID int64) (*users.User, *errors.RestErr) {
+func (s *usersService) GetUser(userID int64) (*users.User, *errors.RestErr) {
 	result := &users.User{ID: userID}
 	if err := result.Get(); err != nil {
 		return nil, err
@@ -32,9 +50,9 @@ func GetUser(userID int64) (*users.User, *errors.RestErr) {
 }
 
 // UpdateUser used ot update a user's details
-func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) {
-	current, err := GetUser(user.ID)
-	if err != nil {
+func (s *usersService) UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) {
+	current := &users.User{ID: user.ID}
+	if err := current.Get(); err != nil {
 		return nil, err
 	}
 
@@ -66,8 +84,9 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 }
 
 // DeleteUser deletes the user
-func DeleteUser(userID int64) *errors.RestErr {
-	if _, err := GetUser(userID); err != nil {
+func (s *usersService) DeleteUser(userID int64) *errors.RestErr {
+	result := &users.User{ID: userID}
+	if err := result.Get(); err != nil {
 		return err
 	}
 	user := &users.User{ID: userID}
@@ -75,7 +94,7 @@ func DeleteUser(userID int64) *errors.RestErr {
 }
 
 // FindUser  finds by status
-func FindUser(status string) ([]users.User, *errors.RestErr) {
+func (s *usersService) FindUser(status string) (users.Users, *errors.RestErr) {
 	user := &users.User{}
 	return user.Find(status)
 }

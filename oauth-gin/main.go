@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/adharshmk96/go-microservices/oauth-gin/src/app"
 
 func main() {
-	fmt.Println("Hello ?")
+	app.StartApplication()
 }

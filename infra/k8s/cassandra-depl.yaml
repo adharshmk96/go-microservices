@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-server-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: cassandra-server
+  ports:
+    - name: cassandra-internode
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
+    - name: cassandra-internode-tls
+      protocol: TCP
+      port: 7001
+      targetPort: 7001
+    - name: cassandra-api
+      protocol: TCP
+      port: 9160
+      targetPort: 9160
+    - name: cassandra-native
+      protocol: TCP
+      port: 9042
+      targetPort: 9042
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-server-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra-server
+  template:
+    metadata:
+      labels:
+        app: cassandra-server
+    spec:
+      containers:
+        - name: cassandra-server
+          image: cassandra
+          envFrom:
+            - configMapRef:
+                name: mysql-server-gin-cred
+          volumeMounts:
+            - name: cassandra-persistent-storage
+              mountPath: /var/lib/cassandra
+      volumes:
+        - name: cassandra-persistent-storage
+          persistentVolumeClaim:
+            claimName: cassandra-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cassandra-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-server-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: cassandra-server
+  ports:
+    - name: cassandra-server-port
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: cassandra-pass
+# type: Opaque
+# data:
+#   MYSQL_ROOT_PASSWORD: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cassandra-env
+data:
+  CASSANDRA_BROADCAST_ADDRESS : host.docker.internal
+  CASSANDRA_SEEDS : host.docker.internal

@@ -10,7 +10,7 @@ spec:
     - host: bookstore.dev
       http:
         paths:
-          - path: /gin/?(.*)
+          - path: /gin/user/?(.*)
             backend:
               serviceName: auth-gin-srv
               servicePort: 3001

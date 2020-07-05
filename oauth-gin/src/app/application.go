@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/adharshmk96/go-microservices/oauth-gin/src/clients/cassandra"
-	"github.com/adharshmk96/go-microservices/oauth-gin/src/domain/accesstoken"
 	"github.com/adharshmk96/go-microservices/oauth-gin/src/http"
 	"github.com/adharshmk96/go-microservices/oauth-gin/src/repository/db"
+	"github.com/adharshmk96/go-microservices/oauth-gin/src/service/atservice"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,10 +19,12 @@ func StartApplication() {
 	}
 	session.Close()
 
-	atService := accesstoken.NewService(db.New())
+	atRepository := db.NewRepository()
+	atService := atservice.NewService(atRepository)
 	atHandler := http.NewHandler(atService)
 
 	router.GET("/gin/oauth/accesstoken/:access_token_id", atHandler.GetById)
+	router.POST("/gin/oauth/accesstoken", atHandler.Create)
 
 	router.Run(":3000")
 }

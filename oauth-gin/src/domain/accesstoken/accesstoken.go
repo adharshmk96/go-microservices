@@ -1,7 +1,10 @@
 package accesstoken
 
 import (
+	"strings"
 	"time"
+
+	"github.com/adharshmk96/go-microservices/oauth-gin/src/utils/errors"
 )
 
 const (
@@ -12,8 +15,26 @@ const (
 type AccessToken struct {
 	AccessToken string `json:"access_token"`
 	UserID      int64  `json:"user_id"`
-	ClientID    string `json:"client_id"`
+	ClientID    int64  `json:"client_id"`
 	Expires     int64  `json:"expires"`
+}
+
+// Validate to validate the access token
+func (at *AccessToken) Validate() *errors.RestErr {
+	at.AccessToken = strings.TrimSpace(at.AccessToken)
+	if at.AccessToken == "" {
+		return errors.NewBadRequestError("Invalid token")
+	}
+	if at.UserID <= 0 {
+		return errors.NewBadRequestError("Invalid User")
+	}
+	if at.ClientID <= 0 {
+		return errors.NewBadRequestError("Invalid Client")
+	}
+	if at.Expires <= 0 {
+		return errors.NewBadRequestError("Invalid Expiry")
+	}
+	return nil
 }
 
 // GetNewAccessToken returns Access Token
